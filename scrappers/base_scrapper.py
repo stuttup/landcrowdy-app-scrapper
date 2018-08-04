@@ -1,12 +1,12 @@
-from time import time, sleep
-from datetime import datetime
+#from time import time, sleep
+#from datetime import datetime
 import csv
 
-import requests
+#import requests
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+#from selenium.webdriver.common.by import By
+#from selenium.webdriver.support.ui import WebDriverWait
+#from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 
 
@@ -102,21 +102,6 @@ class BaseScrapper:
             writer.writerow({'title': 'Title', 'type': 'Type', 'address': 'Address', 'price': 'Price', 'link': 'Link',
                              'image': 'Image'})
             writer.writerows(input)
-            #for row in input:
-                #writer.writerow(row)
 
-
-
-
-
-
-if __name__ == '__main__':
-    scrapper = BaseScrapper(headless=True)
-    if scrapper.connect_to_website('https://house.jumia.sn/land/buy/'):
-        html = scrapper.driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
-        results = scrapper.process_results(html, type='buy')
-
-        scrapper.save_results(results, output='annonces_ventes.csv')
 
 

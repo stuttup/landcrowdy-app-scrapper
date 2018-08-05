@@ -1,5 +1,5 @@
 #from time import time, sleep
-#from datetime import datetime
+from datetime import datetime, date
 import csv
 
 #import requests
@@ -8,6 +8,9 @@ from selenium import webdriver
 #from selenium.webdriver.support.ui import WebDriverWait
 #from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+
+from scrappers.database import DatabaseSession, ListeMaison, ListeJob, ListeTerrain
+
 
 
 class BaseScrapper:
@@ -69,7 +72,7 @@ class BaseScrapper:
 
         self.driver.implicitly_wait(5)
 
-    def process_results(self, html, type='rent', **kwargs):
+    def process_results(self, html, type='location', **kwargs):
         """Process the downloaded scrapping results.
 
         :param html:
@@ -89,7 +92,7 @@ class BaseScrapper:
 
         return results
 
-    def save_results(self, input, output='annonces.csv'):
+    def save_results_to_file(self, input, output='annonces.csv'):
         """
 
         :param input:
@@ -103,5 +106,28 @@ class BaseScrapper:
                              'image': 'Image'})
             writer.writerows(input)
 
+    def save_results_to_database(self, input, **kwargs):
+        """
 
+        :param input:
+        :param kwargs:
+        :return:
+        """
+        with DatabaseSession() as session:
+            for i in input:
+                m = ListeMaison(titre=i.get('title', 'Test'), description=i.get('title', 'Test'),
+                                image=i.get('image', 'test'), lien= i.get('link', 'Test'),pays='SN',
+                              ville=i.get('address', 'Dakar').split(',')[-1], quartier='Test', superficie=50,
+                              prix=100000, chambres=2, type=i.get('type', 'location'), date=datetime.now().date())
+                try:
+                    session.add(m)
+                except Exception as e:
+                    print(e)
+                    session.rollback()
+            session.commit()
+
+            maisons = session.query(ListeMaison).all()
+
+            for m in maisons:
+                print(m.titre)
 

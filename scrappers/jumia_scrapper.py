@@ -1,20 +1,33 @@
 from scrappers.base_scrapper import BaseScrapper
 
-buy_scrapper = BaseScrapper(headless=True)
+scrapper = BaseScrapper(headless=True)
 
-if buy_scrapper.connect_to_website('https://house.jumia.sn/land/buy/'):
-    html = buy_scrapper.driver.page_source
+if scrapper.connect_to_website('https://house.jumia.sn/land/buy/'):
+    print('Getting buy posts')
+    html = scrapper.driver.page_source
 
-    results = buy_scrapper.process_results(html, type='buy')
+    results = scrapper.process_results(html, type='vente')
 
-    buy_scrapper.save_results(results, output='annonces_ventes.csv')
+    #scrapper.save_results_to_file(results, output='annonces_ventes.csv')
+    print("saving to database")
+    scrapper.save_results_to_database(results)
+else:
+    print(f'Failed to connect to website')
 
-rent_scrapper = BaseScrapper(headless=True)
 
-if rent_scrapper.connect_to_website('https://house.jumia.sn/land/rent/'):
-    html = rent_scrapper.driver.page_source
+if scrapper.connect_to_website('https://house.jumia.sn/land/rent/'):
+    print('Getting rent posts')
+    html = scrapper.driver.page_source
 
-    results = rent_scrapper.process_results(html, type='rent')
+    results = scrapper.process_results(html, type='location')
 
-    rent_scrapper.save_results(results, output='annonces_locations.csv')
+    #scrapper.save_results_to_file(results, output='annonces_locations.csv')
+    print("saving to database")
+    scrapper.save_results_to_database(results)
+else:
+    print(f'Failed to connect to website')
+
+
+
+
 

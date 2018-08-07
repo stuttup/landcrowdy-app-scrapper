@@ -1,25 +1,20 @@
-#from time import time, sleep
-from datetime import datetime, date
+from datetime import datetime
 import csv
 import re
 
-#import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.select import Select
 from bs4 import BeautifulSoup
 
-from scrappers.database import DatabaseSession, ListeMaison, ListeJob, ListeTerrain
-
+from jumia.database import DatabaseSession, ListeMaison
 
 
 class BaseScrapper:
     """Base scrapper object with methods to retrieve and save data
 
     """
-
     def __init__(self, browser='firefox', **kwargs):
         """initialise the web driver instance
 
@@ -55,35 +50,6 @@ class BaseScrapper:
                 print(f'Error while connecting to {website_url}', f'Attempt #{_attempts}', end='\n')
         return False
 
-    def search(self, query='Immobilier', website_url='https://deals.jumia.sn', **kwargs):
-        """ Execute custom search on the scrapped website
-
-        :param query: Sting - Terms to search
-        :param kwargs:
-        :return:
-        """
-        _connected = self.connect_to_website(website_url)
-        try:
-            self.driver.find_element_by_class_name('-close_popup').click()
-        except Exception as e:
-            pass
-
-        self.driver.implicitly_wait(3)
-
-        #_category = self.driver.find_element_by_xpath("//select/option[@value='141']")
-
-        #select_category = Select(self.driver.find_element_by_id('search-category'))
-        #self.driver.execute_script("arguments[0].scrollIntoView(true);", _category)
-
-        #select_category.select_by_value("141")
-        #self.driver.implicitly_wait(5)
-        #search_input = self.driver.find_element_by_id('header-search-input')
-        #search_input.send_keys(query)
-        #search_btn = self.driver.find_element_by_id('header-search-submit')
-        #search_btn.click()
-
-        #self.driver.implicitly_wait(5)
-
     def get_deals(self, category='appartements-a-vendre', website_url='https://deals.jumia.sn/', **kwargs):
         """ Execute custom search on the scrapped website
 
@@ -115,7 +81,6 @@ class BaseScrapper:
                     'description': re.sub(r"[\n\t]*", "", a.find(class_='announcement-infos').a.span.text).strip(),
                     'date': a.find(class_='price-date').time.text,
                     'prix': a.find(class_='price-date').span.text.strip(),
-                    #'image': a.find(class_='product-images')['data-src'] or a.find(class_='product-images')['src'],
                     'image': a.img['data-src'] if 'data-src' in a.img.attrs else a.img['src'],
                     'lien': website_url+a.find(class_='announcement-infos').a['href'],
                     'type': 'location' if 'louer' in category else 'vente'
@@ -190,16 +155,3 @@ class BaseScrapper:
                     print(e)
                     session.rollback()
             session.commit()
-
-            maisons = session.query(ListeMaison).all()
-
-            for m in maisons:
-                print(m.titre)
-
-#if __name__ == '__main__':
-    #scrapper = BaseScrapper()
-    #for cat in ['appartements-a-vendre', 'appartements-a-louer', 'studios-chambres-a-louer', 'maisons-a-vendre',
-                #'maisons-a-louer', 'terrains-parcelles', 'locaux-commerciaux-bureaux', 'locaux-industriels',
-                #'investissements-immobiliers']:
-        #scrapper.save_results_to_file(scrapper.get_deals(category=cat), 'deals.csv')
-    #scrapper.disconnect()

@@ -8,13 +8,6 @@ categories = ['appartements-a-vendre', 'appartements-a-louer', 'studios-chambres
 
 scrapper.reset_database()
 
-for cat in ['appartements-a-vendre', 'appartements-a-louer', 'studios-chambres-a-louer', 'maisons-a-vendre',
-                'maisons-a-louer']:
+for cat in categories:
     scrapper.save_results_to_database(scrapper.get_deals(category=cat))
 scrapper.disconnect()
-
-
-
-
-
-

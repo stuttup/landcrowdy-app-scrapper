@@ -1,4 +1,4 @@
-from scrappers.base_scrapper import BaseScrapper
+from jumia.base_scrapper import BaseScrapper
 
 scrapper = BaseScrapper(headless=True)
 

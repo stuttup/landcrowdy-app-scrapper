@@ -23,11 +23,15 @@ def insert_records():
             m = ListeMaison(titre=record.get('titre', 'Test'), description=record.get('description', ''),
                             image=record.get('image', ''), lien=record.get('lien', ''), pays='SN',
                             ville=record.get('lieu', ''), quartier=record.get('lieu', ''), superficie=record.get('superficie', 0),
-                            prix=record.get('prix', 0), chambres=record.get('type', 1), type=record.get('type', 'location'),
-                            date=datetime.strptime(record.get('date', "7-8-2018 11:30"), '%d-%m-%Y %H:%M').date())
+                            prix=record.get('prix', 0), chambres=record.get('chambres', 1), type=record.get('type', 'location'),
+                            date=datetime.strptime(record.get('date', "7-8-2018 11:30").replace('.', '-'), '%d-%m-%Y %H:%M').date())
             try:
                 session.add(m)
             except Exception as e:
                 print(e)
                 session.rollback()
         session.commit()
+
+if __name__ == '__main__':
+    delete_records()
+    insert_records()

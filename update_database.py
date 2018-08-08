@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import json
-from jumia.database import DatabaseSession, ListeMaison
+from jumia.database import DatabaseSession, ListeMaison, ListeTerrain, ListeJob
 
 
 def delete_records():
@@ -16,20 +16,49 @@ def delete_records():
 def insert_records():
     with DatabaseSession() as session:
         print("Inserting new records")
-        with open('scraper_output.json') as f:
-            records = json.load(f)
+        with open('maisons.json') as f:
+            maisons = json.load(f)
+        with open('terrains.json') as f:
+            terrains = json.load(f)
+        with open('jobs.json') as f:
+            jobs = json.load(f)
 
-        for record in records:
-            m = ListeMaison(titre=record.get('titre', 'Test'), description=record.get('description', ''),
-                            image=record.get('image', ''), lien=record.get('lien', ''), pays='SN',
-                            ville=record.get('lieu', ''), quartier=record.get('lieu', ''), superficie=record.get('superficie', 0),
-                            prix=record.get('prix', 0), chambres=record.get('chambres', 1), type=record.get('type', 'location'),
-                            date=datetime.strptime(record.get('date', "7-8-2018 11:30").replace('.', '-'), '%d-%m-%Y %H:%M').date())
+        for maison in maisons:
+            m = ListeMaison(titre=maison.get('titre', 'Test'), description=maison.get('description', ''),
+                            image=maison.get('image', ''), lien=maison.get('lien', ''), pays='SN',
+                            ville=maison.get('lieu', ''), quartier=maison.get('lieu', ''), superficie=maison.get('superficie', 0),
+                            prix=maison.get('prix', 0), chambres=maison.get('chambres', 1), type=maison.get('type', 'location'),
+                            date=datetime.strptime(maison.get('date', "7-8-2018 11:30").replace('.', '-'), '%d-%m-%Y %H:%M').date())
             try:
                 session.add(m)
             except Exception as e:
                 print(e)
                 session.rollback()
+
+        for terrain in terrains:
+            t = ListeTerrain(titre=terrain.get('titre', 'Annonce'), description=terrain.get('description', ''),
+                            image=terrain.get('image', ''), lien=terrain.get('lien', ''), pays='SN',
+                            ville=terrain.get('lieu', ''), quartier=terrain.get('lieu', ''), superficie=terrain.get('superficie', 0),
+                            prix_m2=terrain.get('prix', 1), type=terrain.get('type', 'location'),
+                            date=datetime.strptime(terrain.get('date', "7-8-2018 11:30").replace('.', '-'), '%d-%m-%Y %H:%M').date())
+            try:
+                session.add(t)
+            except Exception as e:
+                print(e)
+                session.rollback()
+
+        for job in jobs:
+            j = ListeJob(titre=job.get('titre', 'Annonce'), description=job.get('description', ''),
+                            image=job.get('image', ''), lien=job.get('lien', ''), pays='SN',
+                            ville=job.get('lieu', ''), domaines=job.get('lieu', ''),
+                            salaire=job.get('prix', 0), type=job.get('type', 'location'),
+                            date=datetime.strptime(job.get('date', "7-8-2018 11:30").replace('.', '-'), '%d-%m-%Y %H:%M').date())
+            try:
+                session.add(j)
+            except Exception as e:
+                print(e)
+                session.rollback()
+
         session.commit()
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import scrapy
+from selenium import webdriver
 
 
 class JumiaSpider(scrapy.Spider):
@@ -41,10 +42,18 @@ class JumiaSpider(scrapy.Spider):
         'https://deals.jumia.sn/maisons-a-louer?page=5'
     ]
 
+    def __init__(self, **kwargs):
+        scrapy.Spider.__init__(self, **kwargs)
+        options = webdriver.FirefoxOptions()
+        options.add_argument('--headless')
+        self.driver = webdriver.Firefox(firefox_options=options)
+
     def parse(self, response):
         for href in response.css('div.announcement-infos a::attr(href)'):
+            # image_url = response.xpath("//div[@class='alignleft']/img[@class='product-images']/@src").extract_first()
+            # request = response.follow(href, self.parse_annonce)
+            # request.meta['image_url'] = image_url
             yield response.follow(href, self.parse_annonce)
-
         # for href in response.css('li.next a::attr(href)'):
         #     yield response.follow(href, self.parse)
 
@@ -63,17 +72,52 @@ class JumiaSpider(scrapy.Spider):
                 r = ''
             return r
 
+        self.driver.get(response.url)
         type_annonce = extract_with_xpath("//div[@class='post-attributes']/div/h3[contains(text(), 'Type de Transaction')]/span/text()")
-        yield {
-            'titre': extract_with_css('h1 span::text').strip(),
-            'description': extract_with_css('div.post-text-content p::text').strip(),
-            'lieu': extract_with_xpath("//div[@class='seller-details']/dl/dt[contains(text(), 'Lieu')]/following-sibling::dd[1]/span/text()").strip(),
-            'date': extract_with_css('div.seller-details dl time::attr(datetime)'),
-            'prix': extract_with_css('span.price span::text').strip(),
-            'image': 'https://deals.jumia.sn' + extract_with_xpath("//img[@itemprop='image']/@src"),
-            'lien': response.request.url,
-            'superficie': extract_with_xpath("//div[@class='post-attributes']/div/h3[contains(text(), 'Superficie')]/span/text()"),
-            'chambres': extract_with_xpath("//div[@class='post-attributes']/div/h3[contains(text(), 'Nombre de pièces')]/span/text()"),
-            'type': type_annonce if len(type_annonce) > 0 else 'location' if 'louer' in response.request.url else 'vente',
-            'pays': 'SN'
-        }
+        item = {}
+        try:
+            item['titre'] = extract_with_css('h1 span::text').strip()
+        except:
+            pass
+        try:
+            item['type'] = type_annonce if len(type_annonce) > 0 else 'location' if 'louer' in response.request.url else 'vente'
+        except:
+            pass
+        try:
+            item['description'] = extract_with_css('div.post-text-content p::text').strip()
+        except:
+            pass
+        try:
+            item['lieu'] = extract_with_xpath("//div[@class='seller-details']/dl/dt[contains(text(), 'Lieu')]/following-sibling::dd[1]/span/text()").strip()
+        except:
+            pass
+        try:
+            item['date'] = extract_with_css('div.seller-details dl time::attr(datetime)')
+        except:
+            pass
+        try:
+            item['prix'] = extract_with_css('span.price span::text').strip()
+        except:
+            pass
+        try:
+            item['chambres'] =  extract_with_xpath("//div[@class='post-attributes']/div/h3[contains(text(), 'Nombre de pièces')]/span/text()")
+        except:
+            pass
+        try:
+            item['superficie'] = extract_with_xpath("//div[@class='post-attributes']/div/h3[contains(text(), 'Superficie')]/span/text()")
+        except:
+            pass
+        try:
+            item['pays'] = 'SN'
+        except:
+            pass
+        try:
+            item['lien'] = response.request.url
+        except:
+            pass
+        try:
+            item['image'] = self.driver.find_element_by_xpath("//div[@class='slider active']/img").get_attribute('src')
+        except:
+            pass
+
+        yield item

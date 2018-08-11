@@ -1,14 +1,13 @@
-from sqlalchemy.orm import Session, relationship, backref
+from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Date, DateTime, INTEGER, String, text, create_engine, BOOLEAN,ForeignKey
-from sqlalchemy.dialects.mysql.types import TINYINT
+from sqlalchemy import Column, Date, DateTime, INTEGER, String, text, create_engine
 
 
-sql_host = 'host name here'
-sql_port = 'Mysql port here'
-sql_user = 'database user here'
-sql_password = 'database pw here'
-sql_database = 'database name here'
+sql_host = 'host here'
+sql_port = 'port here'
+sql_user = 'user here'
+sql_password = 'pw here'
+sql_database = 'db here'
 
 connection_string = f"mysql+pymysql://{sql_user}:{sql_password}@{sql_host}:{sql_port}/{sql_database}"
 
@@ -19,24 +18,25 @@ metadata = Base.metadata
 
 # database connection object
 class DatabaseConnection:
+    """Database connection object context manager
+
+    """
 
     def __enter__(self):
-        # make a database connection and return it
         self.conn = engine.connect()
         return self.conn
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # make sure the dbconnection gets closed
         self.conn.close()
 
-# Database session object (needed for tasks like querying)
-class DatabaseSession:
 
+class DatabaseSession:
+    """Database session object with context manager
+
+    """
     def __enter__(self):
         self.session = Session(engine)
-
         self.session.expire_on_commit = False
-
         return self.session
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -44,72 +44,21 @@ class DatabaseSession:
         self.session = None
 
 
-class CmdJob(Base):
-    __tablename__ = 'cmd_jobs'
-
-    id = Column(INTEGER, primary_key=True)
-    nom = Column(String(50), nullable=False)
-    prenom = Column(String(50), nullable=False)
-    mail = Column(String(100), nullable=False)
-    secteur = Column(String(50), nullable=False)
-    pays = Column(String(2), nullable=False)
-    ville = Column(String(50), nullable=False)
-    telephone = Column(String(20), nullable=False)
-    salaire = Column(String(50), nullable=False)
-    type = Column(String(20), nullable=False, server_default=text("'CDI'"))
-    date = Column(Date, nullable=False)
-
-
-class CmdMaison(Base):
-    __tablename__ = 'cmd_maisons'
-
-    id = Column(INTEGER, primary_key=True)
-    nom = Column(String(50), nullable=False)
-    prenom = Column(String(50), nullable=False)
-    telephone = Column(String(20), nullable=False)
-    mail = Column(String(100), nullable=False)
-    pays = Column(String(2), nullable=False)
-    ville = Column(String(50), nullable=False)
-    quartier = Column(String(50), nullable=False)
-    superficie = Column(INTEGER, nullable=False)
-    prix = Column(INTEGER, nullable=False)
-    type = Column(String(20), nullable=False, server_default=text("'location'"))
-    chambres = Column(INTEGER, nullable=False, server_default=text("'0'"))
-
-
-class CmdTerrain(Base):
-    __tablename__ = 'cmd_terrains'
-
-    id = Column(INTEGER, primary_key=True)
-    nom = Column(String(50), nullable=False)
-    prenom = Column(String(50), nullable=False)
-    telephone = Column(String(20), nullable=False)
-    mail = Column(String(100), nullable=False)
-    pays = Column(String(2), nullable=False)
-    ville = Column(String(50), nullable=False)
-    quartier = Column(String(50), nullable=False)
-    superficie = Column(String(50), nullable=False)
-    prix_m2 = Column(String(50), nullable=False)
-    frequence = Column(INTEGER, nullable=False, server_default=text("'1'"))
-    statut = Column(INTEGER, nullable=False, server_default=text("'0'"))
-    next_send = Column(DateTime, nullable=False)
-    type = Column(String(20), nullable=False, server_default=text("'vente'"))
-    titre = Column(TINYINT(1), nullable=False, server_default=text("'1'"))
-
+## Models generated with Sqlacodegen : sqlacodegen mysql+pymysql://[USER]:[PASSWD]@[HOST]:[DB_PORT]/[DB] > jumia/models.py
 
 class ListeJob(Base):
     __tablename__ = 'liste_jobs'
 
     id = Column(INTEGER, primary_key=True)
     titre = Column(String(100), nullable=False)
-    description = Column(String(250), nullable=False)
+    description = Column(String(250))
     lien = Column(String(250), nullable=False)
-    image = Column(String(250), nullable=False)
+    image = Column(String(250))
     pays = Column(String(2), nullable=False)
-    ville = Column(String(20), nullable=False)
-    domaines = Column(String(100), nullable=False)
-    type = Column(String(20), nullable=False, server_default=text("'CDI'"))
-    salaire = Column(INTEGER, nullable=False, server_default=text("'75000'"))
+    ville = Column(String(20))
+    domaines = Column(String(100))
+    type = Column(String(20), server_default=text("'CDI'"))
+    salaire = Column(String(50))
     date = Column(Date, nullable=False)
 
 
@@ -118,16 +67,16 @@ class ListeMaison(Base):
 
     id = Column(INTEGER, primary_key=True)
     titre = Column(String(100), nullable=False)
-    description = Column(String(250), nullable=False)
-    image = Column(String(250), nullable=False)
+    description = Column(String(250))
+    image = Column(String(250))
     lien = Column(String(250), nullable=False)
     pays = Column(String(2), nullable=False)
-    ville = Column(String(50), nullable=False)
-    quartier = Column(String(50), nullable=False)
-    superficie = Column(INTEGER, nullable=False)
-    prix = Column(INTEGER, nullable=False)
-    chambres = Column(INTEGER, nullable=False)
-    type = Column(String(20), nullable=False, server_default=text("'location'"))
+    ville = Column(String(50))
+    quartier = Column(String(50))
+    superficie = Column(String(20))
+    prix = Column(String(20))
+    chambres = Column(String(20))
+    type = Column(String(20), server_default=text("'location'"))
     date = Column(Date, nullable=False)
 
 
@@ -136,13 +85,27 @@ class ListeTerrain(Base):
 
     id = Column(INTEGER, primary_key=True)
     titre = Column(String(100), nullable=False)
-    description = Column(String(250), nullable=False)
-    image = Column(String(250), nullable=False)
+    description = Column(String(250))
+    image = Column(String(250))
     pays = Column(String(2), nullable=False)
     ville = Column(String(50), nullable=False)
-    quartier = Column(String(50), nullable=False)
-    superficie = Column(INTEGER, nullable=False)
-    prix_m2 = Column(INTEGER, nullable=False)
-    type = Column(String(20), nullable=False, server_default=text("'vente'"))
-    statut = Column(String(20), nullable=False, server_default=text("'titr�'"))
+    quartier = Column(String(50))
+    superficie = Column(String(50))
+    prix = Column(String(50))
+    type = Column(String(20), server_default=text("'vente'"))
+    statut = Column(String(20), server_default=text("'titr�'"))
     date = Column(Date, nullable=False)
+    lien = Column(String(250))
+
+
+class Newsletter(Base):
+    __tablename__ = 'newsletter'
+
+    id = Column(INTEGER, primary_key=True)
+    telephone = Column(String(20), nullable=False)
+    mail = Column(String(100))
+    pays = Column(String(2), nullable=False)
+    ville = Column(String(50), nullable=False)
+    type = Column(String(20), nullable=False)
+    quartier = Column(String(50), nullable=False)
+    last_send = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))

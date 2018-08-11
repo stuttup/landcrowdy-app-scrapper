@@ -45,15 +45,20 @@ class JumiaSpider(scrapy.Spider):
     def __init__(self, **kwargs):
         scrapy.Spider.__init__(self, **kwargs)
         options = webdriver.FirefoxOptions()
-        options.add_argument('--headless')
+        #options.add_argument('--headless')
         self.driver = webdriver.Firefox(firefox_options=options)
 
     def parse(self, response):
+        def get_image_url():
+            for src in response.css('div img::attr(src)').extract():
+                yield src
+
         for href in response.css('div.announcement-infos a::attr(href)'):
-            # image_url = response.xpath("//div[@class='alignleft']/img[@class='product-images']/@src").extract_first()
-            # request = response.follow(href, self.parse_annonce)
-            # request.meta['image_url'] = image_url
-            yield response.follow(href, self.parse_annonce)
+            #image_url = response.css('div img::attr(src)').extract_first()
+            #image_url = 'https://deals.jumia.sn'+ next(get_image_url())
+            request = response.follow(href, self.parse_annonce)
+            #request.meta['image_url'] = image_url
+            yield request
         # for href in response.css('li.next a::attr(href)'):
         #     yield response.follow(href, self.parse)
 
@@ -116,7 +121,8 @@ class JumiaSpider(scrapy.Spider):
         except:
             pass
         try:
-            item['image'] = self.driver.find_element_by_xpath("//div[@class='slider active']/img").get_attribute('src')
+            item['image'] = self.driver.find_element_by_css_selector("div.slide.active img").get_attribute('src')
+            #item['image'] = response.meta['image_url']
         except:
             pass
 
